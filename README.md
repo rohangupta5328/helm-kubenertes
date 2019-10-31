@@ -25,7 +25,8 @@ setup already done for this project:
 steps to follow:
     1) create your kubernetes cluster
     2) running  `helm template .` - will show you what will be applied to tiller
-                `helm install --name=nginx-v1 .` - will then apply the deployments in the cluster, so in the wood, tiller would run a command like: `kubectl apply -f <generated_file>`
+                `helm install .` - will then apply the deployments in the cluster, so in the wood, tiller would run a command like: `kubectl apply -f <generated_file>`
+                running `helm install --name=nginx-v1 .` will ovveride the name
 
 
 Incase of the error : forbidden: User "system:serviceaccount:kube-system:default" cannot get namespaces in the namespace "default, then run the following commands

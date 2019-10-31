@@ -1,0 +1,6 @@
+# for this application, we don't have any dependency
+
+# dependencies:
+#   - name: mongodb
+#     repository: http://kubenertes-charts.storage.googleapis.com/
+#     version: 5.3.4
