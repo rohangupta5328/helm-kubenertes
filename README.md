@@ -36,3 +36,31 @@ Incase of the error : forbidden: User "system:serviceaccount:kube-system:default
 `kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller`
 
 `kubectl patch deploy --namespace kube-system tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}'`
+
+
+AWS
+It's much easier to run kubernetes in google but incase you switch to AWS, follow the following procedure to setup environments:
+
+1.) create cluster
+2.) create worker nodes by lauching worker node in desired region: 
+    for more info: https://docs.aws.amazon.com/eks/latest/userguide/getting-started-console.html
+3.) link the two by running below: kubectl apply -f aws-auth-cm.yaml
+
+aws-auth-cm.yaml:
+```
+    apiVersion: v1 #for connecting aws nodes to the cluster
+    kind: ConfigMap
+    metadata:
+    name: aws-auth
+    namespace: kube-system
+    data:
+    mapRoles: |
+        - rolearn: <ARN of instance role (not instance profile)>
+        username: system:node:{{EC2PrivateDNSName}}
+        groups:
+            - system:bootstrappers
+            - system:nodes
+```
+
+4.) to switch to AWS eks in local machine, update-kubeconfig by running - 
+`aws eks --region <region> update-kubeconfig --name <cluster name>`

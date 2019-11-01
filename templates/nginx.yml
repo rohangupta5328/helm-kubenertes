@@ -1,6 +1,6 @@
 apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
-metadata:
+metadata: |
   name: {{ template "kubelab-chart.fullname" . }}-deployment
 spec:
   selector:
@@ -22,7 +22,7 @@ spec:
 
 kind: Service
 apiVersion: v1
-metadata:
+metadata: |
   name: {{ template "kubelab-chart.fullname" . }}-service
 spec:
   type: NodePort
@@ -36,7 +36,7 @@ spec:
 
 apiVersion: extensions/v1beta1
 kind: Ingress
-metadata:
+metadata: |
   name: {{ template "kubelab-chart.fullname" . }}-ingress
 spec:
   backend:
