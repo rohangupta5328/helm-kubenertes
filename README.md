@@ -10,7 +10,7 @@ What you can learn is:
 
 
 setup already done for this project:
-    1)  `helm init` - initializes helm in your machine
+    1)  `helm init` - initializes helm in your cluster
         `helm create kubelab-chart` generates the folder structure and necessary files
            chart.yml - contains the chart metadata, version and name
            requirements.yml - would contain a declaration of any dependencies your app depends on e.g. mongoDb
@@ -31,12 +31,23 @@ steps to follow:
 
 Incase of the error : forbidden: User "system:serviceaccount:kube-system:default" cannot get namespaces in the namespace "default, then run the following commands
 
+
+// create service account in the tiller with full sudo rights / permissions that will manage resources e.g.
+delete any resource, create any resource. Ofcourse not ideal for production where you need to create a role with 
+only specific tasks tiller is allowed to perform.
 `kubectl create serviceaccount --namespace kube-system tiller`
 
 `kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller`
 
 `kubectl patch deploy --namespace kube-system tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}'`
 
+other commands:
+`helm list` - lists applications installed in your cluster
+`helm status` - status of application deployment
+`helm upgrade` -
+`helm rollback` - go back to previous deploment
+`helm delete (--purge)` - deletes deployment, with purge deletes history
+`helm reset (--force)` - deletes the tiller client
 
 AWS
 It's much easier to run kubernetes in google but incase you switch to AWS, follow the following procedure to setup environments:
