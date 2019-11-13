@@ -73,3 +73,7 @@ aws-auth-cm.yaml:
 
 4.) to switch to AWS eks in local machine, update-kubeconfig by running - 
 `aws eks --region <region> update-kubeconfig --name <cluster name>`
+
+5.) Incase you are running kubernetes clusters in different providers e.g. aws, minikube and gcp then you can get all contexts and switch between them using below commands:
+     -`kubectl config get-contexts`
+     -`kubectl config use-context CONTEXT_NAME`
