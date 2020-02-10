@@ -77,3 +77,89 @@ aws-auth-cm.yaml:
 5.) Incase you are running kubernetes clusters in different providers e.g. aws, minikube and gcp then you can get all contexts and switch between them using below commands:
      -`kubectl config get-contexts`
      -`kubectl config use-context CONTEXT_NAME`
+     
+     
+     
+**more on kubernetes**
+- creating a pod : ```kubectl run <pod name> --image=nginx:alpine```
+- When a pod is brought to live, it’s given a cluster IP address which is only accessible within the cluster, to access a pod outside of the cluster(e.g. from a browser), then use port-forward : ```kubectl port-forward <podname> <external port>:<internal port>```
+- ```Kubectl delete pod``` will delete the pod but will spin a new one (auto-recovery). If you want to completely delete a pod and should never come back then use ```kubectl delete deployment```
+- Yml files is a collection of maps and lists
+- ```Kubectl create -f file.yml``` will throw an error if the resource already exists, ```kubectl apply -f file.yml``` will update the resource
+- You can edit a resource either with set, edit or patch commands
+- ```kubectl exec -it <pod-name> ls /``` is used to execute a shell command on a pod. It is same as: ```docker exec -it --user root jenkinsnode bash -c "ls"``` used to execute command inside docker container as root
+
+**pod health**
+- kubernetes relies on probes to determine the health of pods
+- probes are just diagnostics performed periodically by the kubelet in a container
+- you can write the probes in code as a developer or in yml file
+- we have 2 types of probes, liveness probs and readiness probes
+ 
+ **creating probes in yml file**
+ 1.) HTTP liveness probe
+```
+apiVersion: v1
+kind: Pod
+
+...
+
+spec:
+  containers:
+  - name: my-nginx
+    image: nginx:alpine
+    livenessProbe: // define readiness probe
+      httpGet:
+        path: /index.html // check index page
+        port: 80
+      initialDelaySeconds: 15 // wait 15 seconds
+      timeoutSeconds: 2 // timeout after 2 seconds
+      periodSeconds: 5 // check every 5 seconds
+      failureThreshold: 1 // allow 1 failure before failing the pod
+```
+2.) Exec liveness probe, straight from documentation
+```
+apiVersion: v1
+kind: Pod
+
+...
+
+spec:
+  containers:
+  - name: my-nginx
+    image: k8s.gcr.io/busybox
+    
+    args:
+    - /bin/sh
+    - -c
+    - touch /tmp/healthy; sleep 30;
+      rm -rf /tmp/healthy; sleep 600 // to test failure
+
+    livenessProbe: // define readiness probe
+      exec:
+        command:
+        - cat
+        - /tmp/healthy
+      initialDelaySeconds: 5 // wait 5 seconds
+      periodSeconds: 5 // check every 5 seconds
+```
+- the above pod will be alive untill the file is removed then it will fail
+
+3.) Readiness probes
+- determines when should traffic start routing to the container
+```
+apiVersion: v1
+kind: Pod
+
+...
+
+spec:
+  containers:
+  - name: my-nginx
+    image: nginx:alpine
+    readinessProbe: // define readiness probe
+      httpGet:
+        path: /index.html // check index page
+        port: 80
+      initialDelaySeconds: 2 // wait 2 seconds
+      periodSeconds: 5 // check every 5 seconds untill the request is successful
+```
