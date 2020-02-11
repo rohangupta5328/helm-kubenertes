@@ -328,3 +328,11 @@ spec:
 - great for development because of the localhost loopback
 - loopback address. An address that sends outgoing signals back to the same computer for testing. In a TCP/IP network, the loopback IP address is 127.0. 0.1, and pinging this address will always return a reply unless the firewall prevents it.
 - Broadcast address is the last address in the network, and it is used for addressing all the nodes in the network at the same time.
+
+**understanding cidr block**
+- 10.0.0.0/16 means the 1st 2 blocks/16 bits are booked/masked so it's kinda 255.255.0.0
+**subneting**
+- subnet 1: 10.0.0.0/24
+            255.255.255.1 - 254
+ -subnet 2: 10.0.1.0/24
+            255.255.1.1 - 254
