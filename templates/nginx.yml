@@ -31,6 +31,7 @@ spec:
   ports:
   - port: 8081
     targetPort: 80
+    nodePort: 31000 # this is optional as it can be automatically picked between the range of 30000 - 32767
 
 ---
 

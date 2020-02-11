@@ -84,10 +84,16 @@ aws-auth-cm.yaml:
 - creating a pod : ```kubectl run <pod name> --image=nginx:alpine```
 - When a pod is brought to live, it’s given a cluster IP address which is only accessible within the cluster, to access a pod outside of the cluster(e.g. from a browser), then use port-forward : ```kubectl port-forward <podname> <external port>:<internal port>```
 - ```Kubectl delete pod``` will delete the pod but will spin a new one (auto-recovery). If you want to completely delete a pod and should never come back then use ```kubectl delete deployment```
-- Yml files is a collection of maps and lists
+- Yml files is a collection of maps and lists, declarative approach
 - ```Kubectl create -f file.yml``` will throw an error if the resource already exists, ```kubectl apply -f file.yml``` will update the resource
 - You can edit a resource either with set, edit or patch commands
 - ```kubectl exec -it <pod-name> ls /``` is used to execute a shell command on a pod. It is same as: ```docker exec -it --user root jenkinsnode bash -c "ls"``` used to execute command inside docker container as root
+- to get a shell session with a pod, do:
+```
+kubectl exec <pod name> -it sh
+> apk add curl // to add a package e.g. curl
+> curl -s http://podIP or podName // to test connection to another pod
+```
 
 **pod health**
 - kubernetes relies on probes to determine the health of pods
@@ -163,3 +169,162 @@ spec:
       initialDelaySeconds: 2 // wait 2 seconds
       periodSeconds: 5 // check every 5 seconds untill the request is successful
 ```
+
+**difference between a pod and a deployment**
+- Both Pod and Deployment are full-fledged objects in the Kubernetes API. Deployment manages creating Pods by means of ReplicaSets. What it boils down to is that Deployment will create Pods with spec taken from the template. It is rather unlikely that you will ever need to create Pods directly for a production use-case
+- A deployment is a declarative way to manage Pods using a replicaSet:
+```
+deployment -> replicaSet -> Pod
+```
+
+**functions of replicaSets**
+- brings a self healing mechanism
+- ensures we have the righ number of pods
+- provide fault-tolerance
+- can be used to scale pods
+- relies on pod template
+- no need to create pods directly
+- used by deployments
+
+**role of deployment**
+- pods are managed using replicaSets
+- scales replicaSets which scales pods
+- supports zero-downtime updates by creating and destroying replicaSets
+- provides rollback functionality
+- creates a unique label that is assigned to the replicaSets and generated pods 
+
+* the nice thing about creating a deployment is that you don't need to create a replicaSet, that will be handled automatically behind the scenes
+
+- ```kubectl get deployment --show-labels``` show a list of deploments and labels
+- ```kubectl get deployment -l switch``` show a list of deploments with label switch
+- ```kubectl scale deployment <deployment name> --replicas=5``` creates 5 pods
+or scale by referncing the yml file ```kubectl scale -f file.deployment.yml --replicas=5```
+or 
+```
+spec:
+  replicas: 3
+  selector:
+    tier: frontend
+```
+
+**resources**
+- It's important to keep a limit to the resources (memory and cpu usage) so that incase of anything an individual container does not bring down the whole node
+```
+apiVersion: app/v1 # deployment
+kind: Deployment
+metadata:
+  name: my-nginx
+  labels:
+    app: my-nginx
+spec: # replica set
+  replicas: 4
+  minReadySeconds: 10 # wait for the pod to make sure the container hasn't crashed for 10 seconds before getting traffic. Useful for cases when a pod 1st starts, a container might crash and will have to be rescheduled.
+  selector:
+    matchLabels:
+      app: my-nginx
+  template: # pod
+    metadata:
+      labels:
+        app: my-nginx
+    spec:
+      containers:
+      -name: my-nginx
+       image: nginx:alpine
+       ports:
+       -containerPort: 80
+       resources:
+         limits:
+           memory: '128Mi' #128mb
+           cpu: '200m' #200 millicpu (.2 cpu or 20% of the cpu)
+```
+
+**deployment options**
+- one of the kubernetes is zero downtime deployments, that means it can bring up new pods and once they are ready kill the old ones
+
+**options**
+- rolling updates (default)
+- blue green deployments - have multiple env running at thesame time and once proven you switch to the desired one
+- canary deployments - a very small amount of traffic goes to the new deployment and once proven to work then you switch all traffic
+- rollbacks - going back to previous deployment
+
+
+**services**
+- same as port-forward but a little more official :-)
+- a service provides a single point of entry for accessing one or more pods
+- we can't rely on the IP address of a pod because they change alot hence the ip address change also
+- also pods scale horizontally and each with it's own IP
+- pod's ip is assigned after scheduling and no way to know in advance
+
+- labels are used to associate pods with a service
+- services loadbalances traffic between pods
+- node's kube-proxy creates a virtual IP for services
+- this uses layer 4 (tcp/udp over ip)
+- services are not emphemeral (short lived)
+- creates endpoints
+- browsers will keep thesame k8s service connection (session)
+
+**service types**
+- ClusterIP (default) - service IP is exposed internally within the cluster (expose the service on a cluster internal IP)
+                      - only pods within the cluster can talk with each other or to other pods
+- NodePort - expose the service on each node's IP at a static port (range: 30000 - 32767) (where we have an IP address for a node and a static port to access it)
+           - each node proxies the allocated port
+- LoadBalancer - sits in front of our different nodes and provision an external IP to act as a loadbalancer to call into the nodes and then pods
+               - exposes a cluster externally
+               - is combined with cloud provider load balancer
+               - nodePort and clusterIP services are created as well
+               - each node proxies the allocated port
+- ExternalName service - that maps a service to a DNS name
+                       - service that acts as an alias for an external service
+                       - allows a service to act as the proxy for an external service
+                       - external service details are hidden from cluster and makes it easier change
+
+**port-forwarding**
+```kubectl port-forward pod/<pod name> 8080:80``` # listen on port 8080 locally and forward to port 80 in pod
+```kubectl port-forward deployment/<deployment name> 8080:80``` # listen on port 8080 locally and forward to deployment's pod
+```kubectl port-forward service/<service name> 8080:80``` # listen on port 8080 locally and forward to service's pod
+
+
+services with different names in the metadata section will be allocated different dns entries
+e.g.
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+```
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+```
+
+- these 2 will be assigned different dns entries
+- a frontend pod can access a backend pod using `backend:<port>`
+
+**external name**
+- instead of having to reference an external dns name all over your pods, they instead call an external name e.g.
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-service
+spec:
+  type: ExternalName
+  externalName: api.george.komen
+  ports:
+  - port: 9000
+
+```
+- in essence it's creating an alias or a proxy of a name to the dns entry. It makes it easier to manage such external dependencies that might change
+
+**node port**
+- when using nodePort service, the IP address is that of the host machine. So if running k8s locally then you can access the service through `localhost:<nodePort>`, the node port selected is the external port
+- the hops for a nodeport service would be `nodePort -> port -> targetPort`
+
+**load balancer**
+- this does some magic because it creates the localhost loopback address so you can access the port through : `localhost:<port>`
+- great for development because of the localhost loopback
+- loopback address. An address that sends outgoing signals back to the same computer for testing. In a TCP/IP network, the loopback IP address is 127.0. 0.1, and pinging this address will always return a reply unless the firewall prevents it.
+- Broadcast address is the last address in the network, and it is used for addressing all the nodes in the network at the same time.
