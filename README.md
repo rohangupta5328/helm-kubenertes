@@ -336,3 +336,25 @@ spec:
             255.255.255.1 - 254
  -subnet 2: 10.0.1.0/24
             255.255.1.1 - 254
+            
+**storage**
+- pods live and die so their file system is ephemeral
+- volumes can be used to store state / data and use it in a pod
+- a pod can have multiple volumes attached to it
+- containers rely on a mountPath to access a volume
+- kubernetes supports:
+   - Volumes
+   - PersistentVolumes
+   - PersistentVolumeClaims
+   - StorageClasses
+
+
+
+
+
+
+**understanding linux file system**
+- brew installs binaries to : `/usr/local/Cellar/` but installs aliases in `/usr/local/bin/` which is mapped in system paths
+- any dir in the / and it's subdirectories named `lib` contains application data or the software itself while those named `bin` contains aliases that are basically bash scripts to either start or stop the software in bin
+- meaning if i create a bash file named `run` in any of the `bin` that are mapped in the system path then it means I can execute it by typing `run` in the terminal
+- `/var/run/` contains running deamons in the system e.g. `docker.sock`
