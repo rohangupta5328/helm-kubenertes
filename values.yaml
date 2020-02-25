@@ -5,3 +5,5 @@ container:
 
 service:
     name: nginx-helmv2
+
+nameOverride: nginx-helmv2
