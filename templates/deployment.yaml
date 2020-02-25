@@ -1,0 +1,19 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata: |
+  name: {{ template "kubelab-chart.fullname" . }}-deployment
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "kubelab-chart.fullname" . }}
+  replicas: {{.Values.container.replica}} # tells deployment to run 2 pods matching the template
+  template:
+    metadata:
+      labels:
+        app: {{ template "kubelab-chart.fullname" . }}
+    spec:
+      containers:
+      - name: {{ .Values.container.name }}
+        image: {{.Values.container.image}}
+        ports:
+        - containerPort: 80

@@ -1,1 +1,4 @@
-ContainerName: nginx
+container: 
+    name: nginx
+    image: ${artifact.metadata.image}
+    replica: 2
