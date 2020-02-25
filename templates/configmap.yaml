@@ -3,6 +3,6 @@ kind: ConfigMap
 metadata:
   name: {{.Values.chartName}}-configmap
 data:
-  myvalue: ${secrets.getValue("helm-kubernetes")}
+  myvalue: ${serviceVariable.mySecret}
 
   
