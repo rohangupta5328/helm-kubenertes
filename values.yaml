@@ -3,11 +3,9 @@ chartName: ${service.name}
 container: 
     name: nginx
     image: ${artifact.metadata.image}
-    replica: 2
-
-
-nameOverride: nginx-helmv2
+    replica: ${serviceVariable.replica}
 
 
 ingress:
     name: ${service.name}-ingress
+
