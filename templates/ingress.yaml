@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
-metadata: |
-  name: {{.Values.chartName}}-ingress
+metadata: 
+  name: {{.Values.ingress.name}}
 spec:
   backend:
     serviceName: {{.Values.chartName}}-service

@@ -7,3 +7,7 @@ container:
 
 
 nameOverride: nginx-helmv2
+
+
+ingress:
+    name: ${service.name}-ingress
