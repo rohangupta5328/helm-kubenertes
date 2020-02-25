@@ -1,10 +1,10 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata: |
-  name: {{ template "kubelab-chart.fullname" . }}-ingress
+  name: {{.Values.service.name}}-service-ingress
 spec:
   backend:
-    serviceName: {{ template "kubelab-chart.fullname" . }}-service
+    serviceName: {{.Values.service.name}}-service
     servicePort: 8081
   rules:
   - host: 
@@ -12,5 +12,5 @@ spec:
       paths:
       - path: /test
         backend:
-          serviceName: {{ template "kubelab-chart.fullname" . }}-service
+          serviceName: {{.Values.service.name}}-service
           servicePort: 8081

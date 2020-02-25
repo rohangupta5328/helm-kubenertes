@@ -2,3 +2,6 @@ container:
     name: nginx
     image: ${artifact.metadata.image}
     replica: 2
+
+service:
+    name: nginx-helmv2
