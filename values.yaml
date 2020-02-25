@@ -1,9 +1,9 @@
+chartName: ${service.name}
+
 container: 
     name: nginx
     image: ${artifact.metadata.image}
     replica: 2
 
-service:
-    name: nginx-helmv2
 
 nameOverride: nginx-helmv2

@@ -1,10 +1,10 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata: |
-  name: {{.Values.service.name}}-service-ingress
+  name: {{{.Values.chartName}}-ingress
 spec:
   backend:
-    serviceName: {{.Values.service.name}}-service
+    serviceName: {{.Values.chartName}}-service
     servicePort: 8081
   rules:
   - host: 
@@ -12,5 +12,5 @@ spec:
       paths:
       - path: /test
         backend:
-          serviceName: {{.Values.service.name}}-service
+          serviceName: {{.Values.chartName}}-service
           servicePort: 8081
